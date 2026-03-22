@@ -29,6 +29,7 @@ namespace WebTimer.Hubs
             await Clients.Caller.SendAsync("Message", $"Joined session: {sessionId}");
             // Send the current time to the new user immediately
             await Clients.Caller.SendAsync("ReceiveTime", session.TimeLeftInSeconds);
+            await BroadcastRoomUserCount(sessionId, session.UserCount);
         }
 
         public async Task StartTimer(string sessionId, int minutes, int seconds)
@@ -67,10 +68,16 @@ namespace WebTimer.Hubs
             {
                 if (_sessionManager.Sessions.TryGetValue(sessionId, out var session))
                 {
-                    session.UserCount--;
+                    session.UserCount = Math.Max(0, session.UserCount - 1);
+                    await BroadcastRoomUserCount(sessionId, session.UserCount);
                 }
             }
             await base.OnDisconnectedAsync(exception);
+        }
+
+        private Task BroadcastRoomUserCount(string sessionId, int userCount)
+        {
+            return Clients.Group(sessionId).SendAsync("RoomUserCount", Math.Max(0, userCount));
         }
     }
 }

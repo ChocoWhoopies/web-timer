@@ -9,10 +9,10 @@
 <div class="text-center">
     @if (string.IsNullOrEmpty(Model.SessionId))
     {
-        <div class="mt-4 p-4"> 
-            <h3>Welcome to Shared Timer</h3>
-            <p>To start a session, simply add a name to the URL.</p>
+        <div class="mt-2 p-4 landing-panel d-flex flex-column">
             <div>
+                <h3>Welcome to Shared Timer</h3>
+                <p>To start a session, simply add a name to the URL.</p>
                 <p class="mb-1">
                 Example:
                 <a href="@($"/{exampleRoomId}")"><code>@Request.Host/@exampleRoomId</code></a>
@@ -20,19 +20,29 @@
                 <br />
                 <p class="mb-0">This will create a new timer session that anyone can join and control by visiting the same URL.</p>
             </div>
+            <p class="mt-auto mb-0 pt-5 landing-source-link">
+                Source code:
+                <a href="https://github.com/ChocoWhoopies/web-timer" target="_blank" rel="noreferrer">github.com/ChocoWhoopies/web-timer</a>
+            </p>
         </div>
     }
     else
     {
-        <div class="mb-4 room-title">Room: <span>@Model.SessionId</span></div>
-
         <div id="timerDisplay">00:00</div>
         <div class="mt-2 d-flex justify-content-center align-items-center gap-2">
+            <button id="shareRoomButton" type="button" class="btn btn-sm btn-outline-light room-action-button" title="Copy room ID" aria-label="Copy room ID">
+                <span class="room-action-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M15 5a3 3 0 1 1 2.83 4H17l-6.2 3.1a3 3 0 0 1 0 1.8L17 17h.83A3 3 0 1 1 15 21a3 3 0 0 1 .17-1H15l-6.2-3.1a3 3 0 1 1 0-9.8L15 4h.17A3 3 0 0 1 15 5Z" fill="currentColor" />
+                    </svg>
+                </span>
+            </button>
             <button id="notificationToggle" type="button" class="btn btn-sm btn-outline-light" title="Toggle timer sound" aria-label="Toggle timer sound">
                 🔔
             </button>
             <span id="signalrIndicator" class="signalr-indicator signalr-disconnected" title="Disconnected"></span>
         </div>
+        <div class="mt-2 mb-3 small text-white-50">Connected to this room: <span id="roomUserCount">0</span></div>
         <details class="alarm-panel mt-3 mx-auto p-3">
             <summary class="small text-uppercase alarm-panel-title">Personal Alarm</summary>
             <div class="d-flex justify-content-center align-items-end gap-2 flex-wrap mt-3">
@@ -422,6 +432,44 @@
         toggleButton.setAttribute("aria-label", disabled ? "Enable timer sound" : "Disable timer sound");
     }
 
+    function updateShareRoomButton(copied) {
+        const shareButton = document.getElementById("shareRoomButton");
+        if (!shareButton) {
+            return;
+        }
+
+        shareButton.innerHTML = copied
+            ? '<span class="room-action-icon" aria-hidden="true">✓</span>'
+            : '<span class="room-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M15 5a3 3 0 1 1 2.83 4H17l-6.2 3.1a3 3 0 0 1 0 1.8L17 17h.83A3 3 0 1 1 15 21a3 3 0 0 1 .17-1H15l-6.2-3.1a3 3 0 1 1 0-9.8L15 4h.17A3 3 0 0 1 15 5Z" fill="currentColor" /></svg></span>';
+        shareButton.title = copied ? "Room ID copied" : "Copy room ID";
+        shareButton.setAttribute("aria-label", copied ? "Room ID copied" : "Copy room ID");
+        shareButton.classList.toggle("room-action-copied", copied);
+    }
+
+    async function copyTextToClipboard(text) {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            return;
+        }
+
+        const temporaryInput = document.createElement("input");
+        temporaryInput.type = "text";
+        temporaryInput.value = text;
+        temporaryInput.setAttribute("readonly", "readonly");
+        temporaryInput.style.position = "absolute";
+        temporaryInput.style.left = "-9999px";
+        document.body.appendChild(temporaryInput);
+        temporaryInput.select();
+        temporaryInput.setSelectionRange(0, temporaryInput.value.length);
+
+        const succeeded = document.execCommand("copy");
+        document.body.removeChild(temporaryInput);
+
+        if (!succeeded) {
+            throw new Error("Copy command was rejected.");
+        }
+    }
+
     function tryPlayFinishSound(ignoreDisabled = false) {
         if (!ignoreDisabled && notificationsDisabled()) {
             return;
@@ -438,10 +486,39 @@
     }
 
     updateNotificationToggleIcon();
+    updateShareRoomButton(false);
     syncAlarmInputs();
     updateAlarmStatus();
     registerAudioUnlock();
     initializeAlarmSound();
+
+    let shareRoomResetHandle = null;
+
+    const shareRoomButton = document.getElementById("shareRoomButton");
+    if (shareRoomButton) {
+        shareRoomButton.addEventListener("click", async () => {
+            if (!currentRoomId) {
+                return;
+            }
+
+            try {
+                const roomUrl = window.location.href;
+                await copyTextToClipboard(roomUrl);
+                updateShareRoomButton(true);
+
+                if (shareRoomResetHandle) {
+                    window.clearTimeout(shareRoomResetHandle);
+                }
+
+                shareRoomResetHandle = window.setTimeout(() => {
+                    updateShareRoomButton(false);
+                    shareRoomResetHandle = null;
+                }, 1600);
+            } catch {
+                updateShareRoomButton(false);
+            }
+        });
+    }
 
     const toggleButton = document.getElementById("notificationToggle");
     if (toggleButton) {
@@ -544,6 +621,15 @@
             }
         }
 
+        function updateRoomUserCount(count) {
+            const roomUserCount = document.getElementById("roomUserCount");
+            if (!roomUserCount) {
+                return;
+            }
+
+            roomUserCount.innerText = String(Math.max(0, count ?? 0));
+        }
+
         // Listeners
         connection.on("ReceiveTime", (totalSeconds) => {
             const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
@@ -582,6 +668,10 @@
             }
 
             previousTotalSeconds = totalSeconds;
+        });
+
+        connection.on("RoomUserCount", (count) => {
+            updateRoomUserCount(count);
         });
 
         connection.on("Message", (message) => {
@@ -629,7 +719,10 @@
         }
 
         connection.onreconnecting(() => setIndicator("reconnecting"));
-        connection.onreconnected(() => setIndicator("connected"));
+        connection.onreconnected(async () => {
+            setIndicator("connected");
+            await connection.invoke("JoinSession", currentRoomId);
+        });
         connection.onclose(() => setIndicator("disconnected"));
 
         // Start Connection
