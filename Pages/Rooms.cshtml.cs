@@ -1,25 +1,61 @@
+using System.Security.Claims;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
 using WebTimer.Services;
 
 namespace WebTimer.Pages;
 
-[IgnoreAntiforgeryToken]
 public class RoomsModel : PageModel
 {
-    private readonly SessionManager _sessionManager;
+    public const string AuthenticationScheme = "RoomDashboard";
+    public const string AccessClaimType = "webtimer:room-dashboard";
+    public const string AccessClaimValue = "granted";
+    public const string CsrfClaimType = "webtimer:room-dashboard:csrf";
+    public const string CsrfHeaderName = "X-Room-Dashboard-Csrf";
 
-    public RoomsModel(SessionManager sessionManager)
+    private readonly SessionManager _sessionManager;
+    private readonly RoomDashboardOptions _dashboardOptions;
+
+    public RoomsModel(SessionManager sessionManager, IOptions<RoomDashboardOptions> dashboardOptions)
     {
         _sessionManager = sessionManager;
+        _dashboardOptions = dashboardOptions.Value;
     }
 
-    public void OnGet()
+    public string DashboardCsrfToken => User.FindFirst(CsrfClaimType)?.Value ?? string.Empty;
+
+    public async Task<IActionResult> OnGetAsync(string? accessToken)
     {
+        if (!_dashboardOptions.IsConfigured)
+        {
+            return NotFound();
+        }
+
+        if (HasDashboardAccess())
+        {
+            return Page();
+        }
+
+        if (!string.IsNullOrWhiteSpace(accessToken) &&
+            string.Equals(accessToken, _dashboardOptions.AccessToken, StringComparison.Ordinal))
+        {
+            await SignInAsync();
+            return RedirectToPage();
+        }
+
+        return NotFound();
     }
 
-    public JsonResult OnGetStats()
+    public IActionResult OnGetStats()
     {
+        if (!HasDashboardAccess())
+        {
+            return NotFound();
+        }
+
         var rooms = _sessionManager.Sessions.Values
             .Select(session => new
             {
@@ -40,8 +76,13 @@ public class RoomsModel : PageModel
         });
     }
 
-    public JsonResult OnPostDeleteRoom([FromBody] DeleteRoomRequest? request)
+    public IActionResult OnPostDeleteRoom([FromBody] DeleteRoomRequest? request)
     {
+        if (!HasDashboardAccess(requireCsrfHeader: true))
+        {
+            return NotFound();
+        }
+
         if (request is null || string.IsNullOrWhiteSpace(request.RoomId))
         {
             return new JsonResult(new { success = false, message = "RoomId is required." });
@@ -60,8 +101,13 @@ public class RoomsModel : PageModel
         });
     }
 
-    public JsonResult OnPostDeleteAll()
+    public IActionResult OnPostDeleteAll()
     {
+        if (!HasDashboardAccess(requireCsrfHeader: true))
+        {
+            return NotFound();
+        }
+
         var removedCount = _sessionManager.RemoveAllSessions();
         return new JsonResult(new
         {
@@ -74,5 +120,44 @@ public class RoomsModel : PageModel
     public class DeleteRoomRequest
     {
         public string RoomId { get; set; } = string.Empty;
+    }
+
+    private bool HasDashboardAccess(bool requireCsrfHeader = false)
+    {
+        if (!_dashboardOptions.IsConfigured)
+        {
+            return false;
+        }
+
+        if (User.Identity?.IsAuthenticated != true ||
+            !User.HasClaim(AccessClaimType, AccessClaimValue))
+        {
+            return false;
+        }
+
+        if (!requireCsrfHeader)
+        {
+            return true;
+        }
+
+        var expectedToken = User.FindFirst(CsrfClaimType)?.Value;
+        var providedToken = Request.Headers[CsrfHeaderName].ToString();
+
+        return !string.IsNullOrWhiteSpace(expectedToken) &&
+               string.Equals(expectedToken, providedToken, StringComparison.Ordinal);
+    }
+
+    private async Task SignInAsync()
+    {
+        var claims = new[]
+        {
+            new Claim(AccessClaimType, AccessClaimValue),
+            new Claim(CsrfClaimType, Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)))
+        };
+
+        var identity = new ClaimsIdentity(claims, AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync(AuthenticationScheme, principal);
     }
 }

@@ -1,8 +1,10 @@
-@page "/monitor-rooms-knix"
+@page "/admin"
 @model WebTimer.Pages.RoomsModel
 @{
     ViewData["Title"] = "Rooms";
 }
+
+<meta name="room-dashboard-csrf" content="@Model.DashboardCsrfToken" />
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -44,6 +46,7 @@
     const maxRoomsEl = document.getElementById("maxRooms");
     const roomsBodyEl = document.getElementById("roomsBody");
     const deleteAllBtn = document.getElementById("deleteAllBtn");
+    const dashboardCsrfToken = document.querySelector('meta[name="room-dashboard-csrf"]')?.content ?? "";
 
     function appendCell(row, text) {
         const cell = document.createElement("td");
@@ -96,7 +99,10 @@
         try {
             const response = await fetch('?handler=DeleteRoom', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Room-Dashboard-Csrf': dashboardCsrfToken
+                },
                 body: JSON.stringify({ roomId })
             });
 
@@ -110,7 +116,10 @@
     async function deleteAllRooms() {
         try {
             const response = await fetch('?handler=DeleteAll', {
-                method: 'POST'
+                method: 'POST',
+                headers: {
+                    'X-Room-Dashboard-Csrf': dashboardCsrfToken
+                }
             });
 
             if (!response.ok) return;

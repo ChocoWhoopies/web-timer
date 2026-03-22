@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using WebTimer.Hubs;
 using WebTimer.Services;
 
@@ -5,6 +6,30 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.Configure<RoomDashboardOptions>(builder.Configuration.GetSection(RoomDashboardOptions.SectionName));
+builder.Services.AddAuthentication("RoomDashboard")
+    .AddCookie("RoomDashboard", options =>
+    {
+        options.Cookie.Name = "__Host-WebTimer.RoomDashboard";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.SlidingExpiration = false;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                return Task.CompletedTask;
+            },
+            OnRedirectToAccessDenied = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                return Task.CompletedTask;
+            }
+        };
+    });
 
 // 1. Add SignalR
 builder.Services.AddSignalR();
@@ -28,6 +53,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
