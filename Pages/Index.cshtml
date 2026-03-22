@@ -71,22 +71,58 @@
             <summary class="small text-uppercase alarm-panel-title">Shared Controls</summary>
             <div class="small mt-2 text-white-50">These controls affect the timer for everyone in this room.</div>
             <div class="controls mt-3 p-0">
-                <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
-                    <div>
-                        <label class="small d-block" for="minInput">Minutes</label>
-                        <input type="number" id="minInput" value="5" min="0" class="form-control text-center" style="width: 80px;">
-                    </div>
-                    <div>
-                        <label class="small d-block" for="secInput">Seconds</label>
-                        <input type="number" id="secInput" value="0" min="0" max="59" class="form-control text-center" style="width: 80px;">
+                <div class="btn-group flex-wrap justify-content-center mb-3" role="group" aria-label="Shared timer controls">
+                    <button onclick="handlePause()" class="btn btn-lg shared-control-icon-button" type="button" aria-label="Pause or resume timer" title="Pause or resume timer">
+                        <span class="timer-action-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" focusable="false">
+                                <path d="M7 5h3v14H7zM14 5h3v14h-3z" fill="currentColor" />
+                            </svg>
+                        </span>
+                    </button>
+                    <button onclick="handleReset()" class="btn btn-lg shared-control-icon-button" type="button" aria-label="Reset timer" title="Reset timer">
+                        <span class="timer-action-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" focusable="false">
+                                <path d="M12 5a7 7 0 1 1-6.6 4.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                <path d="M5 5v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+
+                <div id="timerPresetRows" class="timer-preset-rows" aria-label="Timer presets">
+                    <div class="timer-preset-row" data-timer-row>
+                        <div class="timer-preset-field">
+                            <label class="small d-block" for="timerMinInput-0">Minutes</label>
+                            <input type="number" id="timerMinInput-0" value="5" min="0" class="form-control text-center timer-preset-input" data-minutes-input>
+                        </div>
+                        <div class="timer-preset-field">
+                            <label class="small d-block" for="timerSecInput-0">Seconds</label>
+                            <input type="number" id="timerSecInput-0" value="0" min="0" max="59" class="form-control text-center timer-preset-input" data-seconds-input>
+                        </div>
+                        <button class="btn btn-lg timer-preset-start" type="button" data-start-timer aria-label="Start timer" title="Start timer">
+                            <span class="timer-preset-start-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false">
+                                    <path d="M8 6v12l10-6z" fill="currentColor" />
+                                </svg>
+                            </span>
+                        </button>
+                        <button class="btn btn-lg timer-preset-remove" type="button" data-remove-timer-row aria-label="Remove timer row" title="Remove timer row">
+                            <span class="timer-action-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false">
+                                    <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                </svg>
+                            </span>
+                        </button>
                     </div>
                 </div>
 
-                <div class="btn-group flex-wrap justify-content-center" role="group" aria-label="Shared timer controls">
-                    <button onclick="handleStart()" class="btn btn-lg" type="button">Start</button>
-                    <button onclick="handlePause()" class="btn btn-lg" type="button">Pause/Resume</button>
-                    <button onclick="handleReset()" class="btn btn-lg" type="button">Reset</button>
-                </div>
+                <button id="addTimerRowButton" class="btn btn-lg timer-preset-add mt-3" type="button" aria-label="Add new timer row" title="Add new timer row">
+                    <span class="timer-action-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </span>
+                </button>
             </div>
         </details>
     }
@@ -485,12 +521,133 @@
         });
     }
 
+    function getTimerPresetElements() {
+        return {
+            container: document.getElementById("timerPresetRows"),
+            addButton: document.getElementById("addTimerRowButton")
+        };
+    }
+
+    function normalizeTimerMinutes(value) {
+        return Math.max(0, parseInt(value, 10) || 0);
+    }
+
+    function normalizeTimerSeconds(value) {
+        return Math.min(59, Math.max(0, parseInt(value, 10) || 0));
+    }
+
+    function setTimerRowIds(row, index) {
+        const minutesInput = row.querySelector("[data-minutes-input]");
+        const secondsInput = row.querySelector("[data-seconds-input]");
+        const minuteLabel = row.querySelector("label[for^='timerMinInput-']");
+        const secondLabel = row.querySelector("label[for^='timerSecInput-']");
+
+        if (minutesInput) {
+            const minutesId = `timerMinInput-${index}`;
+            minutesInput.id = minutesId;
+            if (minuteLabel) {
+                minuteLabel.htmlFor = minutesId;
+            }
+        }
+
+        if (secondsInput) {
+            const secondsId = `timerSecInput-${index}`;
+            secondsInput.id = secondsId;
+            if (secondLabel) {
+                secondLabel.htmlFor = secondsId;
+            }
+        }
+    }
+
+    function updateTimerPresetRowState() {
+        const { container } = getTimerPresetElements();
+        if (!container) {
+            return;
+        }
+
+        const rows = Array.from(container.querySelectorAll("[data-timer-row]"));
+        const hasSingleRow = rows.length <= 1;
+
+        rows.forEach((row, index) => {
+            setTimerRowIds(row, index);
+
+            const removeButton = row.querySelector("[data-remove-timer-row]");
+            if (!removeButton) {
+                return;
+            }
+
+            removeButton.disabled = hasSingleRow;
+            removeButton.classList.toggle("timer-preset-remove-hidden", hasSingleRow);
+        });
+    }
+
+    function createTimerPresetRow(minutes = 5, seconds = 0) {
+        const row = document.createElement("div");
+        row.className = "timer-preset-row";
+        row.setAttribute("data-timer-row", "");
+        row.innerHTML = `
+            <div class="timer-preset-field">
+                <label class="small d-block" for="">Minutes</label>
+                <input type="number" value="${normalizeTimerMinutes(minutes)}" min="0" class="form-control text-center timer-preset-input" data-minutes-input>
+            </div>
+            <div class="timer-preset-field">
+                <label class="small d-block" for="">Seconds</label>
+                <input type="number" value="${normalizeTimerSeconds(seconds)}" min="0" max="59" class="form-control text-center timer-preset-input" data-seconds-input>
+            </div>
+            <button class="btn btn-lg timer-preset-start" type="button" data-start-timer aria-label="Start timer" title="Start timer">
+                <span class="timer-preset-start-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M8 6v12l10-6z" fill="currentColor" />
+                    </svg>
+                </span>
+            </button>
+            <button class="btn btn-lg timer-preset-remove" type="button" data-remove-timer-row aria-label="Remove timer row" title="Remove timer row">
+                <span class="timer-action-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </span>
+            </button>
+        `;
+
+        return row;
+    }
+
+    function appendTimerPresetRow(minutes = 5, seconds = 0) {
+        const { container } = getTimerPresetElements();
+        if (!container) {
+            return null;
+        }
+
+        const row = createTimerPresetRow(minutes, seconds);
+        container.appendChild(row);
+        updateTimerPresetRowState();
+        return row;
+    }
+
+    function getTimerPresetValues(row) {
+        const minutesInput = row?.querySelector("[data-minutes-input]");
+        const secondsInput = row?.querySelector("[data-seconds-input]");
+
+        if (!minutesInput || !secondsInput) {
+            return null;
+        }
+
+        const minutes = normalizeTimerMinutes(minutesInput.value);
+        const seconds = normalizeTimerSeconds(secondsInput.value);
+        minutesInput.value = minutes.toString();
+        secondsInput.value = seconds.toString();
+
+        return { minutes, seconds };
+    }
+
     updateNotificationToggleIcon();
     updateShareRoomButton(false);
     syncAlarmInputs();
     updateAlarmStatus();
     registerAudioUnlock();
     initializeAlarmSound();
+    updateTimerPresetRowState();
 
     let shareRoomResetHandle = null;
 
@@ -737,20 +894,59 @@
             }
         }
 
-        // Action Handlers (Globally scoped so buttons can find them)
-        window.handleStart = async function() {
-            const m = parseInt(document.getElementById("minInput").value) || 0;
-            const s = parseInt(document.getElementById("secInput").value) || 0;
-            hasSeenPositiveTime = ((m * 60) + s) > 0;
+        async function startTimerWithValues(minutes, seconds) {
+            hasSeenPositiveTime = ((minutes * 60) + seconds) > 0;
             alarmTriggered = false;
             previousTotalSeconds = null;
             await primeFinishSound();
-            connection.invoke("StartTimer", currentRoomId, m, s);
-        };
+            await connection.invoke("StartTimer", currentRoomId, minutes, seconds);
+        }
+
+        const { container: timerPresetContainer, addButton: addTimerRowButton } = getTimerPresetElements();
+
+        if (addTimerRowButton) {
+            addTimerRowButton.addEventListener("click", () => {
+                const row = appendTimerPresetRow();
+                const minutesInput = row?.querySelector("[data-minutes-input]");
+                if (minutesInput) {
+                    minutesInput.focus();
+                    minutesInput.select();
+                }
+            });
+        }
+
+        if (timerPresetContainer) {
+            timerPresetContainer.addEventListener("click", async (event) => {
+                const startButton = event.target.closest("[data-start-timer]");
+                if (startButton) {
+                    const row = startButton.closest("[data-timer-row]");
+                    const values = getTimerPresetValues(row);
+                    if (!values) {
+                        return;
+                    }
+
+                    await startTimerWithValues(values.minutes, values.seconds);
+                    return;
+                }
+
+                const removeButton = event.target.closest("[data-remove-timer-row]");
+                if (!removeButton) {
+                    return;
+                }
+
+                const rows = timerPresetContainer.querySelectorAll("[data-timer-row]");
+                if (rows.length <= 1) {
+                    return;
+                }
+
+                removeButton.closest("[data-timer-row]")?.remove();
+                updateTimerPresetRowState();
+            });
+        }
 
         window.handlePause = async function() {
             await primeFinishSound();
-            connection.invoke("TogglePause", currentRoomId);
+            await connection.invoke("TogglePause", currentRoomId);
         };
 
         window.handleReset = async function() {
@@ -758,7 +954,7 @@
             previousTotalSeconds = 0;
             alarmTriggered = false;
             await primeFinishSound();
-            connection.invoke("ResetTimer", currentRoomId);
+            await connection.invoke("ResetTimer", currentRoomId);
         };
 
         start();
