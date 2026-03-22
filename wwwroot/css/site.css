@@ -1,0 +1,171 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+  box-shadow:
+    0 0 0 0.1rem black,
+    0 0 0 0.25rem white;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+  background-color: black;
+  color: white;
+}
+
+a,
+.nav-link,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+label,
+span,
+div {
+  color: white;
+}
+
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+
+.room-title {
+  font-size: 2rem;
+  color: white;
+}
+
+.signalr-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.signalr-connected {
+  background-color: #22c55e;
+  box-shadow: 0 0 4px #22c55e;
+}
+
+.signalr-reconnecting {
+  background-color: #f59e0b;
+  box-shadow: 0 0 4px #f59e0b;
+  animation: signalr-pulse 1s infinite;
+}
+
+.signalr-disconnected {
+  background-color: #ef4444;
+  box-shadow: 0 0 4px #ef4444;
+}
+
+.alarm-panel {
+  max-width: 420px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.alarm-panel-title {
+  cursor: pointer;
+  letter-spacing: 0.12em;
+  list-style: none;
+}
+
+.alarm-panel-title::-webkit-details-marker {
+  display: none;
+}
+
+.alarm-panel[open] .alarm-panel-title {
+  margin-bottom: 0;
+}
+
+.alarm-input {
+  width: 110px;
+}
+
+.alarm-sound-settings {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+@keyframes signalr-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+#timerDisplay {
+  font-size: 6rem;
+  font-family: monospace;
+  font-weight: bold;
+  color: white;
+  text-shadow: none;
+}
+
+#timerDisplay.timer-finished {
+  color: #ffb3b3;
+}
+
+.card,
+.card-body,
+.alert,
+.controls,
+.form-control,
+.form-control:disabled,
+.form-control[readonly] {
+  background-color: black !important;
+  color: white !important;
+  border-color: white !important;
+}
+
+.btn,
+button,
+input[type="button"],
+input[type="submit"] {
+  background-color: black !important;
+  color: white !important;
+  border: 1px solid white !important;
+  box-shadow: none !important;
+}
+
+/* Remove hover effects on all buttons */
+button:hover,
+.btn:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+  background-color: black !important;
+  border-color: white !important;
+  color: white !important;
+  filter: none !important;
+  text-decoration: none !important;
+  cursor: pointer;
+}

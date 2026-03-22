@@ -1,0 +1,154 @@
+@page "/monitor-rooms-knix"
+@model WebTimer.Pages.RoomsModel
+@{
+    ViewData["Title"] = "Rooms";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Room Dashboard</h2>
+        <a class="btn btn-outline-secondary btn-sm" href="/">Back to Home</a>
+    </div>
+
+    <div class="mb-3">
+        <strong>Active Rooms:</strong> <span id="totalRooms">0</span>
+        <span class="mx-2">/</span>
+        <strong>Max Rooms:</strong> <span id="maxRooms">0</span>
+        <button id="deleteAllBtn" class="btn btn-danger btn-sm ms-3">Delete All Rooms</button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Room ID</th>
+                    <th>Connections</th>
+                    <th>Running</th>
+                    <th>Paused</th>
+                    <th>Time Left (s)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="roomsBody">
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No active rooms</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const totalRoomsEl = document.getElementById("totalRooms");
+    const maxRoomsEl = document.getElementById("maxRooms");
+    const roomsBodyEl = document.getElementById("roomsBody");
+    const deleteAllBtn = document.getElementById("deleteAllBtn");
+
+    function appendCell(row, text) {
+        const cell = document.createElement("td");
+        cell.textContent = text;
+        row.appendChild(cell);
+    }
+
+    function renderEmptyState() {
+        roomsBodyEl.replaceChildren();
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 6;
+        cell.className = "text-center text-muted";
+        cell.textContent = "No active rooms";
+        row.appendChild(cell);
+        roomsBodyEl.appendChild(row);
+    }
+
+    function renderRows(rooms) {
+        if (!rooms || rooms.length === 0) {
+            renderEmptyState();
+            return;
+        }
+
+        roomsBodyEl.replaceChildren();
+
+        for (const room of rooms) {
+            const row = document.createElement("tr");
+
+            appendCell(row, String(room.id ?? ""));
+            appendCell(row, String(room.connections ?? 0));
+            appendCell(row, room.isRunning ? "Yes" : "No");
+            appendCell(row, room.isPaused ? "Yes" : "No");
+            appendCell(row, String(room.timeLeftInSeconds ?? 0));
+
+            const actionCell = document.createElement("td");
+            const button = document.createElement("button");
+            button.className = "btn btn-sm btn-outline-danger delete-room-btn";
+            button.type = "button";
+            button.textContent = "Delete";
+            button.setAttribute("data-room-id", String(room.id ?? ""));
+            actionCell.appendChild(button);
+            row.appendChild(actionCell);
+
+            roomsBodyEl.appendChild(row);
+        }
+    }
+
+    async function deleteRoom(roomId) {
+        try {
+            const response = await fetch('?handler=DeleteRoom', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roomId })
+            });
+
+            if (!response.ok) return;
+            await refreshStats();
+        } catch (error) {
+            console.error('Unable to delete room', error);
+        }
+    }
+
+    async function deleteAllRooms() {
+        try {
+            const response = await fetch('?handler=DeleteAll', {
+                method: 'POST'
+            });
+
+            if (!response.ok) return;
+            await refreshStats();
+        } catch (error) {
+            console.error('Unable to delete all rooms', error);
+        }
+    }
+
+    async function refreshStats() {
+        try {
+            const response = await fetch('?handler=Stats', { cache: 'no-store' });
+            if (!response.ok) return;
+
+            const data = await response.json();
+            totalRoomsEl.textContent = data.totalRooms;
+            maxRoomsEl.textContent = data.maxRooms;
+            renderRows(data.rooms);
+        } catch (error) {
+            console.error('Unable to refresh room stats', error);
+        }
+    }
+
+    roomsBodyEl.addEventListener('click', async (event) => {
+        const button = event.target.closest('.delete-room-btn');
+        if (!button) return;
+
+        const roomId = button.getAttribute('data-room-id');
+        if (!roomId) return;
+
+        await deleteRoom(roomId);
+    });
+
+    deleteAllBtn.addEventListener('click', async () => {
+        await deleteAllRooms();
+    });
+
+    refreshStats();
+    setInterval(refreshStats, 1000);
+</script>
+}
