@@ -171,6 +171,26 @@ div {
   text-shadow: none;
 }
 
+.timer-display-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.timer-adjust-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  min-width: 3.5rem;
+  height: 3.5rem;
+  padding: 0;
+  font-size: 2rem;
+  line-height: 1;
+}
+
 #timerDisplay.timer-finished {
   color: #ffb3b3;
 }
@@ -302,4 +322,21 @@ input[type="submit"]:hover {
   filter: none !important;
   text-decoration: none !important;
   cursor: pointer;
+}
+
+@media (max-width: 576px) {
+  #timerDisplay {
+    font-size: 4rem;
+  }
+
+  .timer-display-controls {
+    gap: 0.75rem;
+  }
+
+  .timer-adjust-button {
+    width: 3rem;
+    min-width: 3rem;
+    height: 3rem;
+    font-size: 1.8rem;
+  }
 }

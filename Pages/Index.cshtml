@@ -28,7 +28,15 @@
     }
     else
     {
-        <div id="timerDisplay">00:00</div>
+        <div class="timer-display-controls">
+            <button onclick="handleAdjustTime(-30)" class="btn btn-lg timer-adjust-button" type="button" aria-label="Subtract 30 seconds" title="Subtract 30 seconds">
+                <span aria-hidden="true">-</span>
+            </button>
+            <div id="timerDisplay">00:00</div>
+            <button onclick="handleAdjustTime(30)" class="btn btn-lg timer-adjust-button" type="button" aria-label="Add 30 seconds" title="Add 30 seconds">
+                <span aria-hidden="true">+</span>
+            </button>
+        </div>
         <div class="mt-2 d-flex justify-content-center align-items-center gap-2">
             <button id="shareRoomButton" type="button" class="btn btn-sm btn-outline-light room-action-button" title="Copy room ID" aria-label="Copy room ID">
                 <span class="room-action-icon" aria-hidden="true">
@@ -955,6 +963,10 @@
             alarmTriggered = false;
             await primeFinishSound();
             await connection.invoke("ResetTimer", currentRoomId);
+        };
+
+        window.handleAdjustTime = async function(deltaSeconds) {
+            await connection.invoke("AdjustTime", currentRoomId, deltaSeconds);
         };
 
         start();

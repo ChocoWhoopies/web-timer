@@ -62,6 +62,28 @@ namespace WebTimer.Hubs
             await Clients.Group(sessionId).SendAsync("Message", "Timer Reset");
         }
 
+        public async Task AdjustTime(string sessionId, int deltaSeconds)
+        {
+            if (!_sessionManager.TryGetSession(sessionId, out var session) || session is null)
+                throw new HubException("Session not found.");
+
+            var updatedTime = Math.Max(0, session.TimeLeftInSeconds + deltaSeconds);
+            session.TimeLeftInSeconds = updatedTime;
+
+            if (updatedTime == 0)
+            {
+                session.IsRunning = false;
+                session.IsPaused = false;
+            }
+            else if (deltaSeconds > 0 && !session.IsRunning)
+            {
+                session.IsRunning = true;
+                session.IsPaused = false;
+            }
+
+            await Clients.Group(sessionId).SendAsync("ReceiveTime", updatedTime);
+        }
+
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             if (Context.Items.TryGetValue("SessionId", out var sessionIdObj) && sessionIdObj is string sessionId)
