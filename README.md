@@ -150,6 +150,34 @@ docker run --rm -p 8080:8080 \
   webtimer
 ```
 
+### Docker Compose
+
+You can also deploy WebTimer using `docker-compose`. This is the recommended way for production-like environments.
+
+Create a `docker-compose.yml` file:
+
+```yaml
+services:
+  webtimer:
+    image: ghcr.io/chocowhoopies/web-timer:main
+    container_name: webtimer
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - RoomDashboard__Enabled=true
+      - RoomDashboard__AccessToken=your-secure-access-token
+    restart: unless-stopped
+```
+
+Replace `ghcr.io/chocowhoopies/web-timer:main` with the appropriate image tag if needed.
+
+To start the service:
+
+```bash
+docker-compose up -d
+```
+
 ### HTTPS note for Docker deployments
 
 The admin cookie is secure-only. That means the shared timer pages will work over HTTP, but the admin dashboard authentication should be exposed through HTTPS.
