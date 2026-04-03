@@ -170,7 +170,7 @@ services:
     restart: unless-stopped
 ```
 
-Replace `ghcr.io/athened/web-timer:main` with the appropriate image tag if needed.
+Replace `ghcr.io/haswelldev/web-timer:main` with the appropriate image tag if needed.
 
 To start the service:
 
