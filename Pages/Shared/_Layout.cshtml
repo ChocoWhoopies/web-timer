@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+@inject Microsoft.Extensions.Configuration.IConfiguration _layoutConfig
+@{
+    var rawDefaultTheme = _layoutConfig["WebTimer:DefaultTheme"] ?? "knix";
+    var serverDefaultTheme = rawDefaultTheme == "haswell" ? "haswell" : "knix";
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -8,11 +13,41 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/WebTimer.styles.css" asp-append-version="true" />
+    <script>
+        // Apply stored theme immediately to avoid flash of unstyled content
+        // Falls back to the server-configured default (WebTimer__DefaultTheme env var)
+        window.WebTimerDefaultTheme = '@serverDefaultTheme';
+        (function () {
+            var stored = localStorage.getItem('webtimer.theme');
+            var theme = (stored === 'knix' || stored === 'haswell') ? stored : window.WebTimerDefaultTheme;
+            document.documentElement.setAttribute('data-theme', theme);
+            var lang = localStorage.getItem('webtimer.language');
+            var supported = ['en', 'pt', 'es', 'el', 'sq'];
+            if (supported.indexOf(lang) !== -1) {
+                document.documentElement.lang = lang;
+            }
+        })();
+    </script>
 </head>
 <body>
     <div class="container">
-        <nav class="py-2 d-flex gap-3">
-            <a href="/">Home</a>
+        <nav class="py-2 d-flex align-items-center gap-3">
+            <a href="/" class="wt-nav-link" data-i18n="nav_home">Home</a>
+            <div class="ms-auto d-flex gap-2 align-items-center">
+                <label for="themeSelect" class="small mb-0 wt-nav-link" data-i18n="nav_theme">Theme</label>
+                <select id="themeSelect" class="form-select form-select-sm wt-nav-select" aria-label="Theme">
+                    <option value="knix">Knix</option>
+                    <option value="haswell">Haswell</option>
+                </select>
+                <label for="languageSelect" class="small mb-0 wt-nav-link" data-i18n="nav_language">Language</label>
+                <select id="languageSelect" class="form-select form-select-sm wt-nav-select" aria-label="Language">
+                    <option value="en">English</option>
+                    <option value="pt">Português</option>
+                    <option value="es">Español</option>
+                    <option value="el">Ελληνικά</option>
+                    <option value="sq">Shqip</option>
+                </select>
+            </div>
         </nav>
         <main role="main" class="pb-3">
             @RenderBody()
