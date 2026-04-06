@@ -11,6 +11,8 @@ It is designed for quick group use cases such as study sessions, workouts, meeti
 - Supports a browser-local personal alarm threshold so each user can be notified before the timer ends
 - Lets each user upload a personal alarm sound stored only in their own browser
 - Includes a lightweight admin dashboard for seeing active rooms and deleting rooms when needed
+- Supports two visual themes: **Knix** (black and white) and **Haswell** (Discord colour palette)
+- Available in five languages: English, Portuguese, Spanish, Greek, and Albanian
 
 ## How rooms work
 
@@ -61,6 +63,7 @@ The admin dashboard is optional and is controlled by environment variables.
 | ---------------------------- | -------------- | --------------------------------------------------------------- |
 | `RoomDashboard__Enabled`     | Only for admin | Set to `true` to enable the admin dashboard                     |
 | `RoomDashboard__AccessToken` | Only for admin | Long random secret used to access `/admin`                      |
+| `WebTimer__DefaultTheme`     | No             | Default theme for first-time visitors: `knix` (default) or `haswell` |
 | `ASPNETCORE_ENVIRONMENT`     | No             | Usually `Development` locally and `Production` in deployment    |
 | `ASPNETCORE_URLS`            | Optional       | Bind Kestrel to a specific address, for example `http://+:8080` |
 
@@ -78,6 +81,31 @@ You can also configure the admin dashboard through configuration providers that 
 ```
 
 For production, prefer environment variables or a secrets manager instead of committing secrets.
+
+## Themes
+
+Two themes are available and can be switched at any time from the top-right corner of every page without reloading.
+
+| Theme | Description |
+| ------- | ----------- |
+| `knix` | Black background with white text and borders |
+| `haswell` | Discord colour palette — dark grey background with blurple (`#5865f2`) accents |
+
+The selected theme is saved in the browser's `localStorage` and restored on the next visit. For first-time visitors who have no stored preference, the default theme is controlled by the `WebTimer__DefaultTheme` environment variable (falls back to `knix` if unset).
+
+## Language
+
+The interface is available in five languages, selectable from the top-right corner of every page. The choice is saved in `localStorage`.
+
+| Code | Language |
+| ---- | -------- |
+| `en` | English |
+| `pt` | Português |
+| `es` | Español |
+| `el` | Ελληνικά |
+| `sq` | Shqip |
+
+All user-facing strings switch instantly when the language is changed, including dynamic status messages and button labels.
 
 ## Admin dashboard
 
@@ -167,6 +195,7 @@ services:
       - ASPNETCORE_URLS=http://+:8080
       - RoomDashboard__Enabled=true
       - RoomDashboard__AccessToken=your-secure-access-token
+      - WebTimer__DefaultTheme=knix  # or haswell
     restart: unless-stopped
 ```
 
