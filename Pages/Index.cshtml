@@ -1,4 +1,4 @@
-﻿@page "{id?}"
+@page "{id?}"
 @model IndexModel
 @{
     ViewData["Title"] = "Shared Timer";
@@ -11,17 +11,17 @@
     {
         <div class="mt-2 p-4 landing-panel d-flex flex-column">
             <div>
-                <h3>Welcome to Shared Timer</h3>
-                <p>To start a session, simply add a name to the URL.</p>
+                <h3 data-i18n="landing_title">Welcome to Shared Timer</h3>
+                <p data-i18n="landing_subtitle">To start a session, simply add a name to the URL.</p>
                 <p class="mb-1">
-                Example:
+                <span data-i18n="landing_example">Example:</span>
                 <a href="@($"/{exampleRoomId}")"><code>@Request.Host/@exampleRoomId</code></a>
                 </p>
                 <br />
-                <p class="mb-0">This will create a new timer session that anyone can join and control by visiting the same URL.</p>
+                <p class="mb-0" data-i18n="landing_description">This will create a new timer session that anyone can join and control by visiting the same URL.</p>
             </div>
             <p class="mt-auto mb-0 pt-5 landing-source-link">
-                Source code:
+                <span data-i18n="landing_source">Source code:</span>
                 <a href="https://github.com/ChocoWhoopies/web-timer" target="_blank" rel="noreferrer">github.com/ChocoWhoopies/web-timer</a>
             </p>
         </div>
@@ -29,11 +29,13 @@
     else
     {
         <div class="timer-display-controls">
-            <button onclick="handleAdjustTime(-30)" class="btn btn-lg timer-adjust-button" type="button" aria-label="Subtract 30 seconds" title="Subtract 30 seconds">
+            <button onclick="handleAdjustTime(-30)" class="btn btn-lg timer-adjust-button" type="button"
+                data-i18n-label="btn_subtract_30" aria-label="Subtract 30 seconds" title="Subtract 30 seconds">
                 <span aria-hidden="true">-</span>
             </button>
             <div id="timerDisplay">00:00</div>
-            <button onclick="handleAdjustTime(30)" class="btn btn-lg timer-adjust-button" type="button" aria-label="Add 30 seconds" title="Add 30 seconds">
+            <button onclick="handleAdjustTime(30)" class="btn btn-lg timer-adjust-button" type="button"
+                data-i18n-label="btn_add_30" aria-label="Add 30 seconds" title="Add 30 seconds">
                 <span aria-hidden="true">+</span>
             </button>
         </div>
@@ -50,44 +52,46 @@
             </button>
             <span id="signalrIndicator" class="signalr-indicator signalr-disconnected" title="Disconnected"></span>
         </div>
-        <div class="mt-2 mb-3 small text-white-50">Connected to this room: <span id="roomUserCount">0</span></div>
+        <div class="mt-2 mb-3 small text-white-50"><span data-i18n="connected_to_room">Connected to this room:</span> <span id="roomUserCount">0</span></div>
         <details class="alarm-panel mt-3 mx-auto p-3">
-            <summary class="small text-uppercase alarm-panel-title">Personal Alarm</summary>
+            <summary class="small text-uppercase alarm-panel-title" data-i18n="personal_alarm">Personal Alarm</summary>
             <div class="d-flex justify-content-center align-items-end gap-2 flex-wrap mt-3">
                 <div>
-                    <label class="small d-block" for="alarmMinInput">Notify at minutes left</label>
+                    <label class="small d-block" for="alarmMinInput" data-i18n="alarm_notify_minutes">Notify at minutes left</label>
                     <input type="number" id="alarmMinInput" value="0" min="0" class="form-control text-center alarm-input">
                 </div>
                 <div>
-                    <label class="small d-block" for="alarmSecInput">Seconds</label>
+                    <label class="small d-block" for="alarmSecInput" data-i18n="alarm_seconds_label">Seconds</label>
                     <input type="number" id="alarmSecInput" value="5" min="0" max="59" class="form-control text-center alarm-input">
                 </div>
-                <button id="alarmSaveButton" type="button" class="btn btn-sm btn-outline-light">Save alarm</button>
+                <button id="alarmSaveButton" type="button" class="btn btn-sm btn-outline-light" data-i18n="alarm_save">Save alarm</button>
             </div>
             <div id="alarmStatus" class="small mt-2 text-white-50">This alarm only applies in this browser.</div>
             <div class="alarm-sound-settings mt-3 pt-3">
-                <label class="small d-block mb-2" for="alarmSoundInput">Personal sound file</label>
+                <label class="small d-block mb-2" for="alarmSoundInput" data-i18n="alarm_sound_file">Personal sound file</label>
                 <input type="file" id="alarmSoundInput" accept="audio/*" class="form-control form-control-sm" />
                 <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
-                    <button id="alarmSoundTestButton" type="button" class="btn btn-sm btn-outline-light">Test sound</button>
-                    <button id="alarmSoundResetButton" type="button" class="btn btn-sm btn-outline-light">Use default sound</button>
+                    <button id="alarmSoundTestButton" type="button" class="btn btn-sm btn-outline-light" data-i18n="alarm_test_sound">Test sound</button>
+                    <button id="alarmSoundResetButton" type="button" class="btn btn-sm btn-outline-light" data-i18n="alarm_use_default">Use default sound</button>
                 </div>
                 <div id="alarmSoundStatus" class="small mt-2 text-white-50">Using default alarm sound.</div>
             </div>
         </details>
         <details class="alarm-panel mt-3 mx-auto p-3">
-            <summary class="small text-uppercase alarm-panel-title">Shared Controls</summary>
-            <div class="small mt-2 text-white-50">These controls affect the timer for everyone in this room.</div>
+            <summary class="small text-uppercase alarm-panel-title" data-i18n="shared_controls">Shared Controls</summary>
+            <div class="small mt-2 text-white-50" data-i18n="shared_controls_desc">These controls affect the timer for everyone in this room.</div>
             <div class="controls mt-3 p-0">
                 <div class="btn-group flex-wrap justify-content-center mb-3" role="group" aria-label="Shared timer controls">
-                    <button onclick="handlePause()" class="btn btn-lg shared-control-icon-button" type="button" aria-label="Pause or resume timer" title="Pause or resume timer">
+                    <button onclick="handlePause()" class="btn btn-lg shared-control-icon-button" type="button"
+                        data-i18n-label="btn_pause" aria-label="Pause or resume timer" title="Pause or resume timer">
                         <span class="timer-action-icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24" focusable="false">
                                 <path d="M7 5h3v14H7zM14 5h3v14h-3z" fill="currentColor" />
                             </svg>
                         </span>
                     </button>
-                    <button onclick="handleReset()" class="btn btn-lg shared-control-icon-button" type="button" aria-label="Reset timer" title="Reset timer">
+                    <button onclick="handleReset()" class="btn btn-lg shared-control-icon-button" type="button"
+                        data-i18n-label="btn_reset" aria-label="Reset timer" title="Reset timer">
                         <span class="timer-action-icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24" focusable="false">
                                 <path d="M12 5a7 7 0 1 1-6.6 4.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -100,21 +104,23 @@
                 <div id="timerPresetRows" class="timer-preset-rows" aria-label="Timer presets">
                     <div class="timer-preset-row" data-timer-row>
                         <div class="timer-preset-field">
-                            <label class="small d-block" for="timerMinInput-0">Minutes</label>
+                            <label class="small d-block" for="timerMinInput-0" data-i18n="preset_minutes">Minutes</label>
                             <input type="number" id="timerMinInput-0" value="5" min="0" class="form-control text-center timer-preset-input" data-minutes-input>
                         </div>
                         <div class="timer-preset-field">
-                            <label class="small d-block" for="timerSecInput-0">Seconds</label>
+                            <label class="small d-block" for="timerSecInput-0" data-i18n="preset_seconds">Seconds</label>
                             <input type="number" id="timerSecInput-0" value="0" min="0" max="59" class="form-control text-center timer-preset-input" data-seconds-input>
                         </div>
-                        <button class="btn btn-lg timer-preset-start" type="button" data-start-timer aria-label="Start timer" title="Start timer">
+                        <button class="btn btn-lg timer-preset-start" type="button" data-start-timer
+                            data-i18n-label="btn_start_timer" aria-label="Start timer" title="Start timer">
                             <span class="timer-preset-start-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" focusable="false">
                                     <path d="M8 6v12l10-6z" fill="currentColor" />
                                 </svg>
                             </span>
                         </button>
-                        <button class="btn btn-lg timer-preset-remove" type="button" data-remove-timer-row aria-label="Remove timer row" title="Remove timer row">
+                        <button class="btn btn-lg timer-preset-remove" type="button" data-remove-timer-row
+                            data-i18n-label="btn_remove_row" aria-label="Remove timer row" title="Remove timer row">
                             <span class="timer-action-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" focusable="false">
                                     <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -124,7 +130,8 @@
                     </div>
                 </div>
 
-                <button id="addTimerRowButton" class="btn btn-lg timer-preset-add mt-3" type="button" aria-label="Add new timer row" title="Add new timer row">
+                <button id="addTimerRowButton" class="btn btn-lg timer-preset-add mt-3" type="button"
+                    data-i18n-label="btn_add_row" aria-label="Add new timer row" title="Add new timer row">
                     <span class="timer-action-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" focusable="false">
                             <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -136,8 +143,10 @@
     }
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+<audio id="timerFinishedSound" preload="auto"></audio>
 
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
 <script>
     // 1. Get the SessionId from the C# Model
     const currentRoomId = "@Model.SessionId";
@@ -155,6 +164,8 @@
 
     let finishSoundUnlocked = false;
     let customFinishSoundUrl = null;
+    let currentAlarmSoundInfo = { type: 'default', name: null };
+    let currentIndicatorState = 'disconnected';
 
     function normalizeAlarmSeconds(totalSeconds) {
         return Math.max(0, Math.floor(Number.isFinite(totalSeconds) ? totalSeconds : 0));
@@ -214,7 +225,7 @@
             return;
         }
 
-        status.innerText = message || `Alarm set for ${formatAlarmTime(getAlarmThresholdInSeconds())} remaining.`;
+        status.innerText = message || wt_t('alarm_set_for', { time: formatAlarmTime(getAlarmThresholdInSeconds()) });
     }
 
     function updateAlarmSoundStatus(message) {
@@ -334,19 +345,22 @@
         if (record?.blob instanceof Blob) {
             customFinishSoundUrl = URL.createObjectURL(record.blob);
             setFinishSoundSource(customFinishSoundUrl);
-            updateAlarmSoundStatus(`Using personal sound: ${record.name}. Stored only in this browser.`);
+            currentAlarmSoundInfo = { type: 'custom', name: record.name };
+            updateAlarmSoundStatus(wt_t('alarm_using_custom', { name: record.name }));
             return true;
         }
 
         setFinishSoundSource(defaultFinishSoundUrl);
-        updateAlarmSoundStatus("Using default alarm sound.");
+        currentAlarmSoundInfo = { type: 'default', name: null };
+        updateAlarmSoundStatus(wt_t('alarm_using_default'));
         return false;
     }
 
     async function initializeAlarmSound() {
         if (!("indexedDB" in window)) {
             setFinishSoundSource(defaultFinishSoundUrl);
-            updateAlarmSoundStatus("Custom sound storage is not available in this browser. Using default alarm sound.");
+            currentAlarmSoundInfo = { type: 'unavailable', name: null };
+            updateAlarmSoundStatus(wt_t('alarm_storage_unavailable'));
             const { input, resetButton } = getAlarmSoundElements();
             if (input) {
                 input.disabled = true;
@@ -362,7 +376,8 @@
             await applyStoredAlarmSound(record);
         } catch {
             setFinishSoundSource(defaultFinishSoundUrl);
-            updateAlarmSoundStatus("Could not load a saved personal sound. Using default alarm sound.");
+            currentAlarmSoundInfo = { type: 'error', name: null };
+            updateAlarmSoundStatus(wt_t('alarm_load_error'));
         }
     }
 
@@ -398,10 +413,10 @@
         setAlarmThresholdInSeconds(totalSeconds);
         const permission = await ensureBrowserNotificationPermission();
         const notificationSuffix = permission === "denied"
-            ? " Browser notifications are blocked, so only sound will play."
+            ? wt_t('alarm_notifications_blocked')
             : "";
 
-        updateAlarmStatus(`Alarm set for ${formatAlarmTime(totalSeconds)} remaining.${notificationSuffix}`);
+        updateAlarmStatus(wt_t('alarm_set_for', { time: formatAlarmTime(totalSeconds) }) + notificationSuffix);
     }
 
     async function tryShowBrowserNotification(totalSeconds) {
@@ -410,8 +425,8 @@
         }
 
         if (Notification.permission === "granted") {
-            new Notification("WebTimer alarm", {
-                body: `Timer reached ${formatAlarmTime(totalSeconds)} remaining.`,
+            new Notification(wt_t('notification_title'), {
+                body: wt_t('notification_body', { time: formatAlarmTime(totalSeconds) }),
                 silent: notificationsDisabled()
             });
             return;
@@ -472,8 +487,8 @@
 
         const disabled = notificationsDisabled();
         toggleButton.innerText = disabled ? "🔕" : "🔔";
-        toggleButton.title = disabled ? "Sound disabled" : "Sound enabled";
-        toggleButton.setAttribute("aria-label", disabled ? "Enable timer sound" : "Disable timer sound");
+        toggleButton.title = disabled ? wt_t('btn_sound_disabled') : wt_t('btn_sound_enabled');
+        toggleButton.setAttribute("aria-label", disabled ? wt_t('btn_enable_sound') : wt_t('btn_disable_sound'));
     }
 
     function updateShareRoomButton(copied) {
@@ -485,8 +500,8 @@
         shareButton.innerHTML = copied
             ? '<span class="room-action-icon" aria-hidden="true">✓</span>'
             : '<span class="room-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M15 5a3 3 0 1 1 2.83 4H17l-6.2 3.1a3 3 0 0 1 0 1.8L17 17h.83A3 3 0 1 1 15 21a3 3 0 0 1 .17-1H15l-6.2-3.1a3 3 0 1 1 0-9.8L15 4h.17A3 3 0 0 1 15 5Z" fill="currentColor" /></svg></span>';
-        shareButton.title = copied ? "Room ID copied" : "Copy room ID";
-        shareButton.setAttribute("aria-label", copied ? "Room ID copied" : "Copy room ID");
+        shareButton.title = copied ? wt_t('btn_copied_room') : wt_t('btn_copy_room');
+        shareButton.setAttribute("aria-label", copied ? wt_t('btn_copied_room') : wt_t('btn_copy_room'));
         shareButton.classList.toggle("room-action-copied", copied);
     }
 
@@ -595,21 +610,21 @@
         row.setAttribute("data-timer-row", "");
         row.innerHTML = `
             <div class="timer-preset-field">
-                <label class="small d-block" for="">Minutes</label>
+                <label class="small d-block" for="">${wt_t('preset_minutes')}</label>
                 <input type="number" value="${normalizeTimerMinutes(minutes)}" min="0" class="form-control text-center timer-preset-input" data-minutes-input>
             </div>
             <div class="timer-preset-field">
-                <label class="small d-block" for="">Seconds</label>
+                <label class="small d-block" for="">${wt_t('preset_seconds')}</label>
                 <input type="number" value="${normalizeTimerSeconds(seconds)}" min="0" max="59" class="form-control text-center timer-preset-input" data-seconds-input>
             </div>
-            <button class="btn btn-lg timer-preset-start" type="button" data-start-timer aria-label="Start timer" title="Start timer">
+            <button class="btn btn-lg timer-preset-start" type="button" data-start-timer aria-label="${wt_t('btn_start_timer')}" title="${wt_t('btn_start_timer')}">
                 <span class="timer-preset-start-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" focusable="false">
                         <path d="M8 6v12l10-6z" fill="currentColor" />
                     </svg>
                 </span>
             </button>
-            <button class="btn btn-lg timer-preset-remove" type="button" data-remove-timer-row aria-label="Remove timer row" title="Remove timer row">
+            <button class="btn btn-lg timer-preset-remove" type="button" data-remove-timer-row aria-label="${wt_t('btn_remove_row')}" title="${wt_t('btn_remove_row')}">
                 <span class="timer-action-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" focusable="false">
                         <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -657,6 +672,36 @@
     initializeAlarmSound();
     updateTimerPresetRowState();
 
+    // Re-render dynamic text when language changes
+    document.addEventListener('wt-language-changed', () => {
+        updateNotificationToggleIcon();
+        updateAlarmStatus();
+        if (currentAlarmSoundInfo.type === 'custom') {
+            updateAlarmSoundStatus(wt_t('alarm_using_custom', { name: currentAlarmSoundInfo.name }));
+        } else if (currentAlarmSoundInfo.type === 'unavailable') {
+            updateAlarmSoundStatus(wt_t('alarm_storage_unavailable'));
+        } else if (currentAlarmSoundInfo.type === 'error') {
+            updateAlarmSoundStatus(wt_t('alarm_load_error'));
+        } else {
+            updateAlarmSoundStatus(wt_t('alarm_using_default'));
+        }
+        // Re-apply data-i18n-label on dynamically created rows
+        document.querySelectorAll('[data-start-timer]').forEach(btn => {
+            const v = wt_t('btn_start_timer');
+            btn.setAttribute('title', v);
+            btn.setAttribute('aria-label', v);
+        });
+        document.querySelectorAll('[data-remove-timer-row]').forEach(btn => {
+            const v = wt_t('btn_remove_row');
+            btn.setAttribute('title', v);
+            btn.setAttribute('aria-label', v);
+        });
+        // Update indicator title
+        if (typeof setIndicator === 'function') {
+            setIndicator(currentIndicatorState);
+        }
+    });
+
     let shareRoomResetHandle = null;
 
     const shareRoomButton = document.getElementById("shareRoomButton");
@@ -694,7 +739,7 @@
             if (disabled) {
                 await primeFinishSound();
             }
-            updateAlarmStatus(disabled ? "Alarm sound enabled." : "Alarm sound disabled.");
+            updateAlarmStatus(disabled ? wt_t('alarm_sound_enabled') : wt_t('alarm_sound_disabled'));
         });
     }
 
@@ -716,7 +761,7 @@
             }
 
             if (!selectedFile.type.startsWith("audio/")) {
-                updateAlarmSoundStatus("Please choose a valid audio file.");
+                updateAlarmSoundStatus(wt_t('alarm_invalid_file'));
                 alarmSoundInput.value = "";
                 return;
             }
@@ -732,7 +777,8 @@
                 tryPlayFinishSound(true);
             } catch {
                 setFinishSoundSource(defaultFinishSoundUrl);
-                updateAlarmSoundStatus("Could not save that sound locally. Using default alarm sound.");
+                currentAlarmSoundInfo = { type: 'error', name: null };
+                updateAlarmSoundStatus(wt_t('alarm_save_error'));
             } finally {
                 alarmSoundInput.value = "";
             }
@@ -743,7 +789,7 @@
         alarmSoundTestButton.addEventListener("click", async () => {
             const primed = await primeFinishSound();
             if (!primed) {
-                updateAlarmSoundStatus("Sound preview is blocked until you interact with the page.");
+                updateAlarmSoundStatus(wt_t('alarm_preview_blocked'));
                 return;
             }
 
@@ -758,7 +804,7 @@
                 await applyStoredAlarmSound(null);
                 await primeFinishSound();
             } catch {
-                updateAlarmSoundStatus("Could not remove the saved personal sound.");
+                updateAlarmSoundStatus(wt_t('alarm_remove_error'));
             }
         });
     }
@@ -868,18 +914,19 @@
 
         // Connection indicator
         function setIndicator(state) {
+            currentIndicatorState = state;
             const indicator = document.getElementById("signalrIndicator");
             if (!indicator) return;
             indicator.className = "signalr-indicator";
             if (state === "connected") {
                 indicator.classList.add("signalr-connected");
-                indicator.title = "Connected";
+                indicator.title = wt_t('signalr_connected');
             } else if (state === "reconnecting") {
                 indicator.classList.add("signalr-reconnecting");
-                indicator.title = "Reconnecting...";
+                indicator.title = wt_t('signalr_reconnecting');
             } else {
                 indicator.classList.add("signalr-disconnected");
-                indicator.title = "Disconnected";
+                indicator.title = wt_t('signalr_disconnected');
             }
         }
 
@@ -972,5 +1019,4 @@
         start();
     }
 </script>
-
-<audio id="timerFinishedSound" preload="auto"></audio>
+}

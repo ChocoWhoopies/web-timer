@@ -1,3 +1,56 @@
+:root {
+  /* Knix theme (default) */
+  --wt-bg: #000000;
+  --wt-surface: rgba(255, 255, 255, 0.04);
+  --wt-border: rgba(255, 255, 255, 0.35);
+  --wt-border-subtle: rgba(255, 255, 255, 0.15);
+  --wt-text: #ffffff;
+  --wt-text-muted: rgba(255, 255, 255, 0.5);
+  --wt-btn-bg: #000000;
+  --wt-btn-border: #ffffff;
+  --wt-btn-text: #ffffff;
+  --wt-btn-hover-bg: #000000;
+  --wt-input-bg: #000000;
+  --wt-input-border: #ffffff;
+  --wt-input-text: #ffffff;
+  --wt-timer-color: #ffffff;
+  --wt-timer-finished: #ffb3b3;
+  --wt-copied-bg: #ffffff;
+  --wt-copied-text: #000000;
+  --wt-focus-inner: black;
+  --wt-focus-outer: white;
+  --wt-select-bg: #000000;
+  --wt-select-text: #ffffff;
+  --wt-select-border: rgba(255, 255, 255, 0.35);
+  --wt-nav-link: #ffffff;
+}
+
+[data-theme="haswell"] {
+  --wt-bg: #313338;
+  --wt-surface: rgba(0, 0, 0, 0.18);
+  --wt-border: rgba(255, 255, 255, 0.1);
+  --wt-border-subtle: rgba(255, 255, 255, 0.06);
+  --wt-text: #dbdee1;
+  --wt-text-muted: #949ba4;
+  --wt-btn-bg: #4752c4;
+  --wt-btn-border: transparent;
+  --wt-btn-text: #ffffff;
+  --wt-btn-hover-bg: #3c45a5;
+  --wt-input-bg: #1e1f22;
+  --wt-input-border: rgba(255, 255, 255, 0.1);
+  --wt-input-text: #dbdee1;
+  --wt-timer-color: #dbdee1;
+  --wt-timer-finished: #ed4245;
+  --wt-copied-bg: #57f287;
+  --wt-copied-text: #1e1f22;
+  --wt-focus-inner: transparent;
+  --wt-focus-outer: rgba(88, 101, 242, 0.5);
+  --wt-select-bg: #1e1f22;
+  --wt-select-text: #dbdee1;
+  --wt-select-border: rgba(255, 255, 255, 0.1);
+  --wt-nav-link: #dbdee1;
+}
+
 html {
   font-size: 14px;
 }
@@ -14,8 +67,8 @@ html {
 .form-control:focus,
 .form-check-input:focus {
   box-shadow:
-    0 0 0 0.1rem black,
-    0 0 0 0.25rem white;
+    0 0 0 0.1rem var(--wt-focus-inner),
+    0 0 0 0.25rem var(--wt-focus-outer);
 }
 
 html {
@@ -25,8 +78,8 @@ html {
 
 body {
   margin-bottom: 60px;
-  background-color: black;
-  color: white;
+  background-color: var(--wt-bg);
+  color: var(--wt-text);
 }
 
 a,
@@ -41,7 +94,7 @@ h6,
 label,
 span,
 div {
-  color: white;
+  color: var(--wt-text);
 }
 
 .form-floating > .form-control-plaintext::placeholder,
@@ -57,7 +110,7 @@ div {
 
 .room-title {
   font-size: 2rem;
-  color: white;
+  color: var(--wt-text);
 }
 
 .room-title span {
@@ -104,8 +157,12 @@ div {
 }
 
 .room-action-copied {
-  background-color: white !important;
-  color: black !important;
+  background-color: var(--wt-copied-bg) !important;
+  color: var(--wt-copied-text) !important;
+}
+
+.room-action-copied svg path {
+  fill: var(--wt-copied-text);
 }
 
 .signalr-connected {
@@ -126,9 +183,9 @@ div {
 
 .alarm-panel {
   max-width: 420px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 1px solid var(--wt-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--wt-surface);
 }
 
 .alarm-panel-title {
@@ -150,7 +207,7 @@ div {
 }
 
 .alarm-sound-settings {
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-top: 1px solid var(--wt-border-subtle);
 }
 
 @keyframes signalr-pulse {
@@ -167,7 +224,7 @@ div {
   font-size: 6rem;
   font-family: monospace;
   font-weight: bold;
-  color: white;
+  color: var(--wt-timer-color);
   text-shadow: none;
 }
 
@@ -192,18 +249,19 @@ div {
 }
 
 #timerDisplay.timer-finished {
-  color: #ffb3b3;
+  color: var(--wt-timer-finished);
 }
 
 .card,
 .card-body,
 .alert,
 .form-control,
+.form-select,
 .form-control:disabled,
 .form-control[readonly] {
-  background-color: black !important;
-  color: white !important;
-  border-color: white !important;
+  background-color: var(--wt-input-bg) !important;
+  color: var(--wt-input-text) !important;
+  border-color: var(--wt-input-border) !important;
 }
 
 .controls {
@@ -305,9 +363,9 @@ div {
 button,
 input[type="button"],
 input[type="submit"] {
-  background-color: black !important;
-  color: white !important;
-  border: 1px solid white !important;
+  background-color: var(--wt-btn-bg) !important;
+  color: var(--wt-btn-text) !important;
+  border: 1px solid var(--wt-btn-border) !important;
   box-shadow: none !important;
 }
 
@@ -316,12 +374,29 @@ button:hover,
 .btn:hover,
 input[type="button"]:hover,
 input[type="submit"]:hover {
-  background-color: black !important;
-  border-color: white !important;
-  color: white !important;
+  background-color: var(--wt-btn-hover-bg) !important;
+  border-color: var(--wt-btn-border) !important;
+  color: var(--wt-btn-text) !important;
   filter: none !important;
   text-decoration: none !important;
   cursor: pointer;
+}
+
+/* Nav controls */
+.wt-nav-select {
+  background-color: var(--wt-select-bg) !important;
+  color: var(--wt-select-text) !important;
+  border-color: var(--wt-select-border) !important;
+  /* Override the broad button rule that would otherwise apply */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+[data-theme="haswell"] .wt-nav-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23dbdee1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+.wt-nav-link {
+  color: var(--wt-nav-link) !important;
 }
 
 @media (max-width: 576px) {
