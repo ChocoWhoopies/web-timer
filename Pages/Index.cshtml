@@ -31,12 +31,12 @@
         <div class="timer-display-controls">
             <button onclick="handleAdjustTime(-30)" class="btn btn-lg timer-adjust-button" type="button"
                 data-i18n-label="btn_subtract_30" aria-label="Subtract 30 seconds" title="Subtract 30 seconds">
-                <span aria-hidden="true">-</span>
+                    <span aria-hidden="true">-30s</span>
             </button>
             <div id="timerDisplay">00:00</div>
             <button onclick="handleAdjustTime(30)" class="btn btn-lg timer-adjust-button" type="button"
                 data-i18n-label="btn_add_30" aria-label="Add 30 seconds" title="Add 30 seconds">
-                <span aria-hidden="true">+</span>
+                    <span aria-hidden="true">+30s</span>
             </button>
         </div>
         <div class="mt-2 d-flex justify-content-center align-items-center gap-2">
@@ -53,31 +53,7 @@
             <span id="signalrIndicator" class="signalr-indicator signalr-disconnected" title="Disconnected"></span>
         </div>
         <div class="mt-2 mb-3 small text-white-50"><span data-i18n="connected_to_room">Connected to this room:</span> <span id="roomUserCount">0</span></div>
-        <details class="alarm-panel mt-3 mx-auto p-3">
-            <summary class="small text-uppercase alarm-panel-title" data-i18n="personal_alarm">Personal Alarm</summary>
-            <div class="d-flex justify-content-center align-items-end gap-2 flex-wrap mt-3">
-                <div>
-                    <label class="small d-block" for="alarmMinInput" data-i18n="alarm_notify_minutes">Notify at minutes left</label>
-                    <input type="number" id="alarmMinInput" value="0" min="0" class="form-control text-center alarm-input">
-                </div>
-                <div>
-                    <label class="small d-block" for="alarmSecInput" data-i18n="alarm_seconds_label">Seconds</label>
-                    <input type="number" id="alarmSecInput" value="5" min="0" max="59" class="form-control text-center alarm-input">
-                </div>
-                <button id="alarmSaveButton" type="button" class="btn btn-sm btn-outline-light" data-i18n="alarm_save">Save alarm</button>
-            </div>
-            <div id="alarmStatus" class="small mt-2 text-white-50">This alarm only applies in this browser.</div>
-            <div class="alarm-sound-settings mt-3 pt-3">
-                <label class="small d-block mb-2" for="alarmSoundInput" data-i18n="alarm_sound_file">Personal sound file</label>
-                <input type="file" id="alarmSoundInput" accept="audio/*" class="form-control form-control-sm" />
-                <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
-                    <button id="alarmSoundTestButton" type="button" class="btn btn-sm btn-outline-light" data-i18n="alarm_test_sound">Test sound</button>
-                    <button id="alarmSoundResetButton" type="button" class="btn btn-sm btn-outline-light" data-i18n="alarm_use_default">Use default sound</button>
-                </div>
-                <div id="alarmSoundStatus" class="small mt-2 text-white-50">Using default alarm sound.</div>
-            </div>
-        </details>
-        <details class="alarm-panel mt-3 mx-auto p-3">
+        <details class="alarm-panel mt-3 mx-auto p-3" open>
             <summary class="small text-uppercase alarm-panel-title" data-i18n="shared_controls">Shared Controls</summary>
             <div class="small mt-2 text-white-50" data-i18n="shared_controls_desc">These controls affect the timer for everyone in this room.</div>
             <div class="controls mt-3 p-0">
@@ -138,6 +114,30 @@
                         </svg>
                     </span>
                 </button>
+            </div>
+        </details>
+        <details class="alarm-panel mt-3 mx-auto p-3">
+            <summary class="small text-uppercase alarm-panel-title" data-i18n="personal_alarm">Personal Alarm</summary>
+            <div class="d-flex justify-content-center align-items-end gap-2 flex-wrap mt-3">
+                <div>
+                    <label class="small d-block" for="alarmMinInput" data-i18n="alarm_notify_minutes">Notify at minutes left</label>
+                    <input type="number" id="alarmMinInput" value="0" min="0" class="form-control text-center alarm-input">
+                </div>
+                <div>
+                    <label class="small d-block" for="alarmSecInput" data-i18n="alarm_seconds_label">Seconds</label>
+                    <input type="number" id="alarmSecInput" value="5" min="0" max="59" class="form-control text-center alarm-input">
+                </div>
+                <button id="alarmSaveButton" type="button" class="btn btn-sm btn-outline-light" data-i18n="alarm_save">Save alarm</button>
+            </div>
+            <div id="alarmStatus" class="small mt-2 text-white-50">This alarm only applies in this browser.</div>
+            <div class="alarm-sound-settings mt-3 pt-3">
+                <label class="small d-block mb-2" for="alarmSoundInput" data-i18n="alarm_sound_file">Personal sound file</label>
+                <input type="file" id="alarmSoundInput" accept="audio/*" class="form-control form-control-sm" />
+                <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
+                    <button id="alarmSoundTestButton" type="button" class="btn btn-sm btn-outline-light" data-i18n="alarm_test_sound">Test sound</button>
+                    <button id="alarmSoundResetButton" type="button" class="btn btn-sm btn-outline-light" data-i18n="alarm_use_default">Use default sound</button>
+                </div>
+                <div id="alarmSoundStatus" class="small mt-2 text-white-50">Using default alarm sound.</div>
             </div>
         </details>
     }
